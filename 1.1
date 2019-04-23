@@ -1,0 +1,94 @@
+Emp Table :-
+
+create table Emp(Empno number(4) constraint pk_Emp_Empno primary key, Ename varchar2(10), job varchar2(9),mgr number(4),Hiredate date, sal number(7,2),Comm number(7,2),Deptno number(2));
+
+Designation_Master :-
+
+create table Designation_Master(Design_code number(3) constraint pk_Design_Code primary key, Design_name varchar2(50));
+
+Department_Master :-
+
+create table Department_Master(Dept_code number(2) constraint pk_Dept_code primary key, Dept_name varchar2(50));
+
+Student_Master :-
+
+create table Student_Master(Student_code number(6), Student_name varchar2(50),Dept_code number(2), Student_dob date, Student_Address varchar2(30), constraint pk_Student_code_Student_name primary key(Student_code,Student_name));
+
+Student_Marks :-
+
+create table Student_Marks(Student_code number(6),Student_Year number,Subject1 number(3),Subject2 number(3),Subject3 number(3), constraint pk_Student_Year primary key(Student_Year));
+
+
+Staff_Master :-
+
+create table Staff_Master(Staff_Code number(8),Staff_Name Varchar2(50),Design_Code number,dept_code number,HireDate date,Staff_dob date,Staff_address varchar(240),Mgr_code number(8),Staff_sal number(10,2),constraint pK_Staff_code_Staff_Name primary key(Staff_Code,Staff_Name));
+
+Book_Master :-
+
+create table Book_Master( Book_code number(10), Book_name varchar2(50),Book_pub_year number(5),Book_pub_author varchar2(50),constraint pk_Book_code__name_author primary key(Book_code,Book_name,Book_pub_author));
+
+Book_Transaction :-
+
+create table Book_Transaction(Book_Code number,Student_Code number ,Staff_code number,Book_issue_date date,Book_expected_return_date date, Book_actual_return_date date,constraint pk_BookIssue_Return primary key(Book_issue_date,Book_expected_return_date));
+
+Insertion data :-
+
+ insert into Staff_Master values(1000,'Shifa_Naz',100,200,'12-jan-2002','03-apr-1996','abc',300,15000);
+  insert into Staff_Master values(1001,'Pranay',140,150,'11-jan-2001','06-apr-1995','def',301,25000);
+ insert into Staff_Master values(1002,'Manish',110,210,'19-jan-2003','08-jun-1997','ghi',302,12000);
+insert into Staff_Master values(1003,'Pavithra',108,140,'24-jan-2002','03-aug-1998','jkl',303,18000);
+ insert into Staff_Master values(1004,'Sahith',190,280,'12-dec-2005','03-apr-1999','mno',304,17000);
+ 
+insert into Student_Master values(100,'PR',10,'06-APR-1995','ABC');
+
+Solutions :-
+
+1.1 Answers :-     
+
+1-> select staff_name as Name,design_code as Department from staff_master where (hiredate<'12-Jan-2003' AND staff_sal between 12000 AND 25000);     
+
+2->  select staff_name,staff_code,dept_code from staff_master where round(months_between(Sysdate,hiredate))>216 order by hiredate;
+
+3-> select * from Staff_Master where Mgr_code is null;
+
+4->  select * from book_master where (book_pub_year between 2001 and 2004)  AND (book_name like'%&%');
+
+5-> select Staff_Name from Staff_Master where instr(Staff_Name,'_')>0;
+
+2.1 Answers :-
+
+1->  select Staff_Name as Name, lpad(Staff_sal,15,'$') from Staff_Master;
+
+2-> select student_name,to_char(Student_dob,'Month dd yyyy') from student_master where trim(to_char(Student_dob,'Day')) in ('Saturday','Sunday');
+
+3-> select Staff_name, round(months_between(sysdate,HireDate)) as"month worked" from Staff_Master order by HireDate; 
+
+4-> select * from Staff_Master where to_char(hiredate,'mon')='dec' and to_char(hiredate,'dd')<15;
+
+5-> select staff_name,staff_sal,case when Staff_sal>=50000 then '    A' when Staff_sal between 25000 and 50000 then '    B' when Staff_sal between 10000 and 25000 then '    C' else '    D' end as "Grade" from staff_master;
+
+6->  select staff_name,hiredate,to_char(hiredate,'dy') from staff_master order by mod(to_char(hiredate,'d')+5,7);
+
+7->  select instr('Mississipi','i',1,3) from dual;
+
+8-> //for last day of the month
+	select to_char((next_day(last_day(sysdate)-7,'Friday')),'ddSPth FM "of" month yyyy') as "PAY MONTH" from dual;
+	//for next week day
+	 SELECT TO_CHAR(NEXT_DAY(SYSDATE,'WEDNESDAY'),'DD MONTH ,YYYY') AS DAY FROM DUAL WHERE NEXT_DAY(SYSDATE,'WEDNESDAY')<LAST_DAY(SYSDATE) ;
+
+9->  select student_code,student_name, decode(dept_code,20,'Electrials',30,'Electronics','Others') from student_master;
+
+2.2 Amswers :-
+
+1->  select dept_code,max(Staff_sal) as Maximum,min(Staff_sal) as Minimum,sum(staff_sal) as Total,avg(staff_sal) as Average from StafF_master group by dept_code;
+
+2-> select dept_code,count(mgr_code) as "Total Number of Managers" from staff_master group by dept_code;
+	//For sum of total number of managers
+	create view v1 as select dept_code,count(mgr_code) as "Total managers" from staff_master group by dept_code;
+	select * from v1;
+	create or replace view v1(dc,ct) as select dept_code,count(mgr_code) as "Total managers" from staff_master group by dept_code;
+	select sum(ct) from v1;
+	
+3->  select dept_code, sum(staff_sal) as "sum" from Staff_Master where (Staff_code <> mgr_code) group by dept_code having sum(Staff_sal)>20000;
+
+3.1 Answers :-
